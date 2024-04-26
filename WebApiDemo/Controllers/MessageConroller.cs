@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace WebApiDemo.Controllers
 {
@@ -8,21 +9,25 @@ namespace WebApiDemo.Controllers
     public class MessageConroller : ControllerBase
     {
         private readonly ILogger<MessageConroller> _logger;
-
-        public MessageConroller(ILogger<MessageConroller> logger)
+        public readonly Services.IChatService chatService;
+        private readonly IHubContext<ChatHub> _hubContext;
+        public MessageConroller(ILogger<MessageConroller> logger, Services.IChatService services)
         {
             _logger = logger;
+            chatService = services;
         }
 
-        [HttpGet("{id}/{message}")]
-        public IActionResult Get(int id, string message)
+        [HttpPost("AddMessage")]
+        public IActionResult AddMessage(string content)
         {
-            if (message == null)
+            ChatMessage newMessage = new ChatMessage()
             {
-                return NotFound();
-            }
+                Content = content
+            };
+            chatService.AddMessage(newMessage);
+            _hubContext.Clients.All.SendAsync("ReceiveMessage", newMessage);
+            return Ok(newMessage);
 
-            return Ok(message);
         }
     }
 }

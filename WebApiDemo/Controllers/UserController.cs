@@ -65,6 +65,7 @@ namespace WebApiDemo.Controllers
                     UserName = username,
                     Password = password
                 };
+                //newUser.UserId = _chatService.GetUserId(newUser.UserName);
                 string token = _chatService.LoginUser(newUser);
                 if (token == "-1")
                 {
@@ -80,6 +81,7 @@ namespace WebApiDemo.Controllers
                         SameSite = SameSiteMode.Strict,
                         Expires = DateTimeOffset.UtcNow.AddHours(1)
                     });
+                //string result = $"{token} {user}"
                 return Ok(token);
             }
             catch (Exception ex)
@@ -103,17 +105,22 @@ namespace WebApiDemo.Controllers
                 {
                     UserId = _chatService.GetUserId(),
                     UserName = username,
-                    Password = password//Generate
+                    Password = password//Generate()
                 };
 
-                _chatService.Registration(newUser);
-                _logger.LogInformation("Данные получены!");
-                return Ok(newUser);
+                var result = _chatService.Registration(newUser);
+                if (result == 1)
+                {
+                    _logger.LogInformation("Данные получены!");
+                    return Ok(newUser);
+                }
+                return StatusCode(500, "User is already registered");
+                
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error occurred while registration user: {ex.Message}");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "The user is already registered");
             }
         }
 

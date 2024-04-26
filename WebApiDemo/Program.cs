@@ -45,8 +45,6 @@ namespace WebApiDemo
             builder.Services.AddSwaggerGen();
             builder.Services.AddSignalR();
 
-            //builder.Services.AddSingleton<UserController>();
-
             var appName = typeof(Program).Assembly.GetName().Name;
 
             var loggerConfiguration = new LoggerConfiguration();

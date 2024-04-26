@@ -16,6 +16,7 @@ namespace WebApiDemo.Services
     public class ChatService: IChatService
     {
         private readonly List<User> users = new List<User>();
+        private readonly List<ChatMessage> messages = new List<ChatMessage>();
         private readonly JwtOptions _jwtOptions;
         private readonly IHubContext<ChatHub> _hubContext;
 
@@ -31,12 +32,17 @@ namespace WebApiDemo.Services
             //_hubContext = hubContext;
         }
 
+        public void AddMessage(ChatMessage newMessage)
+        {
+            messages.Add(newMessage);
+        }
         public string GenerateToken(User user)
         {
             Claim[] claims = new[] { new Claim("userId", user.UserId.ToString()) };
                 
             var signingCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey)), SecurityAlgorithms.HmacSha256);
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey)),
+                SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -60,10 +66,16 @@ namespace WebApiDemo.Services
             File.WriteAllText("user.json", Userjson);
         }
 
-        public void Registration(User newUser)
+        public int Registration(User newUser)
         {
-            users.Add(newUser);
-            SaveUsers();
+            User RegUser = users.FirstOrDefault(u => u.UserName == newUser.UserName);
+            if (RegUser == null)
+            {
+                users.Add(newUser);
+                SaveUsers();
+                return 1;
+            }
+            return -1;
         }
         
         private bool Verify(string password, string hashPassword)
@@ -83,9 +95,25 @@ namespace WebApiDemo.Services
                 return "-2"; 
             }
 
+            int user_id = RegUser.UserId;
             var token = GenerateToken(RegUser);
-            
-            return token; 
+
+            return $"{token} {user_id}"; 
         }
+
+        public string GetUserName(int user_id)
+        {
+            User user = users.FirstOrDefault(u => u.UserId == user_id);
+            
+            return user != null ? user.UserName : "Unknown User";
+        }
+        
+        
+        /*public int GetIdByName(string username)
+        {
+            var user = users.FirstOrDefault(u => u.UserName == username);
+            return user != null ? user.Id : 0;
+        }*/
+        
     }
 }

@@ -2,8 +2,8 @@ namespace WebApiDemo;
 
 public class ChatMessage
 {
-    public int MessageId { get; set; }
-    public string SenderId { get; set; }
+    //public int MessageId { get; set; }
+    public int UserId { get; set; }
     public string Content { get; set; }
 }
 //hub

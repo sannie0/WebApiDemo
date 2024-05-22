@@ -82,6 +82,7 @@ namespace WebApiDemo.Controllers
                         Expires = DateTimeOffset.UtcNow.AddHours(1)
                     });
                 //string result = $"{token} {user}"
+                Console.WriteLine(username, ' ', password);
                 return Ok(token);
             }
             catch (Exception ex)

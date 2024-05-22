@@ -85,6 +85,14 @@ namespace WebApiDemo.Services
         
         public string LoginUser(User user)
         {
+            foreach (var i in users)
+            {
+                Console.WriteLine(i.UserName, ' ', i.Password);
+            }
+
+            Console.WriteLine("--------");
+            
+
             User RegUser = users.FirstOrDefault(u => u.UserName == user.UserName);
             if (RegUser == null)
             {
@@ -97,6 +105,8 @@ namespace WebApiDemo.Services
 
             int user_id = RegUser.UserId;
             var token = GenerateToken(RegUser);
+
+
 
             return $"{token} {user_id}"; 
         }
